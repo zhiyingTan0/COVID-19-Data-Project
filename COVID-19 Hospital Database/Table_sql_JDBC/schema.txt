@@ -1,0 +1,184 @@
+EX2. Relational Model
+Entities:
+/**********************************************************************************/
+borough (bname, population)
+--- bname ->primary key
+Creating borough table: 
+
+CREATE TABLE borough
+(
+	bname VARCHAR(60) NOT NULL UNIQUE,
+	population INTEGER NOT NULL,
+	PRIMARY KEY(bname)
+);
+/**********************************************************************************/
+
+individual (pid, bname, pname, age, street_address, email, phone,testresult,testday)   
+Phone is in de form of(1-514-xxxxxxx)
+--- pid->primary key
+--- bname ref borough
+Creating individual table:
+
+CREATE TABLE individual
+(
+	pid SERIAL NOT NULL UNIQUE ,
+	bname VARCHAR(60) UNIQUE,
+	pname VARCHAR(60) NOT NULL ,
+	email VARCHAR(60),
+	phone CHARACTER(13),
+	age INTEGER,
+	street_address VARCHAR(100) ,
+	testresult VARCHAR(10),
+	testday DATE,
+	PRIMARY KEY(pid),
+	FOREIGN KEY (bname) REFERENCES borough(bname),
+	CONSTRAINT emailorphone CHECK (email <> NULL OR phone <> NULL)
+);
+/**********************************************************************************/
+
+patient (pid, pname, age, street_address, email, phone, status,testresult,testday)
+--- pid->primary key
+--- pid ref individual
+Creating patient table:
+
+CREATE TABLE patient
+(
+	pid SERIAL NOT NULL UNIQUE ,
+	pname VARCHAR(60) NOT NULL ,
+	status VARCHAR(10) NOT NULL,
+	email VARCHAR(60) ,
+	phone CHARACTER(13),
+	age INTEGER,
+	street_address VARCHAR(100) ,
+	testresult VARCHAR(10),
+	testday DATE,
+	PRIMARY KEY(pid),
+	FOREIGN KEY (pid) REFERENCES individual(pid),
+	CONSTRAINT emailorphone CHECK (email <> NULL OR phone <> NULL)
+
+);
+/**********************************************************************************/
+
+
+person (pid, pname, age, street_address, email, phone,testresult,testday)
+--- pid->primary key
+--- pid ref individual
+Creating person table:
+
+CREATE TABLE person
+(
+	pid SERIAL NOT NULL UNIQUE ,
+	pname VARCHAR(60) NOT NULL ,
+	email VARCHAR(60) ,
+	phone CHARACTER(13),
+	age INTEGER,
+	street_address VARCHAR(100) ,
+	testresult VARCHAR(10),
+	testday DATE,
+	PRIMARY KEY(pid),
+	FOREIGN KEY (pid) REFERENCES individual(pid),
+	CONSTRAINT emailorphone CHECK (email <> NULL OR phone <> NULL)
+);
+
+/**********************************************************************************/
+
+drugs (dname, ACT, dosage)
+--- dname ->primary key
+Creating drugs table:
+
+CREATE TABLE drugs
+(
+	dname VARCHAR(60) NOT NULL UNIQUE,
+	ACT CHARACTER(7) NOT NULL,
+	dosage VARCHAR(10) NOT NULL,
+	PRIMARY KEY(dname)
+)
+
+/**********************************************************************************/
+
+professional(hid, name, designation, phone)
+--- hid -> primary key	
+Creating professional table:
+
+CREATE TABLE professional
+(
+	hid INTEGER NOT NULL UNIQUE ,
+	name VARCHAR(30) NOT NULL,
+	designation VARCHAR(10) NOT NULL,
+	phone CHARACTER (13),
+	PRIMARY KEY(hid)
+);	    
+
+/**********************************************************************************/
+
+Relations:
+visit(pid, hid, hour, text, vday,vid)
+--- vid ->primary key
+--- pid ref patient
+--- hid ref professional
+Creating visit table:
+
+CREATE TABLE visit
+(
+	vid SERIAL NOT NUll UNIQUE,
+	pid SERIAL NOT NULL,
+	hid INTEGER NOT NULL,
+	hour INTEGER NOT NULL,
+	vday DATE NOT NULL,
+	text VARCHAR(200),
+	PRIMARY KEY(vid),
+	FOREIGN KEY(pid) REFERENCES patient(pid),
+	FOREIGN KEY(hid) REFERENCES professional(hid)
+);
+
+
+/**********************************************************************************/
+
+administration(dname, pid, hid, aday, ahour,aid)
+--- aid ->primary key
+--- dname ref drugs
+--- pid ref patient
+--- hid ref professional
+Creating table administration:
+
+CREATE TABLE administration
+(
+	aid SERIAL NOT NUll UNIQUE,
+	dname VARCHAR(60) NOT NULL,
+	pid SERIAL NOT NULL,
+	hid INTEGER NOT NULL,
+	aday DATE NOT NULL,
+	ahour INTEGER NOT NULL,
+	PRIMARY KEY(aid),
+	FOREIGN KEY(dname) REFERENCES drugs(dname),
+	FOREIGN KEY(pid) REFERENCES patient(pid),
+	FOREIGN KEY(hid) REFERENCES professional(hid)
+);
+/**********************************************************************************/
+
+
+contact(pid1,pid2)
+--- (pid1,pid2) ->primary key
+--- pid1 ref patient
+--- pid2 ref person
+Creating contact table:
+
+CREATE TABLE contact
+(
+	pid1 SERIAL NOT NULL,
+	pid2 SERIAL NOT NULL,
+	PRIMARY KEY(pid1,pid2),
+	FOREIGN KEY(pid1) REFERENCES patient(pid),
+	FOREIGN KEY(pid2) REFERENCES person(pid)
+);
+
+/**********************************************************************************/
+Other constraints cannot captured in relational model:
+1. Cannot enforce each person in person table to put at least one record into contact table
+2. Cannot ensure that each patient will be observed by one professional
+
+
+
+
+
+
